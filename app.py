@@ -35,7 +35,14 @@ st.sidebar.header("Opciones")
 mostrar_todo = st.sidebar.checkbox("Mostrar todos los filmes")
 
 titulo_busqueda = st.sidebar.text_input("Buscar por título")
-buscar = st.sidebar.button("Buscar")
+buscar_titulo = st.sidebar.button("Buscar por título")
+
+# -------- SELECTBOX DIRECTOR --------
+directores = sorted(df["director"].dropna().unique())
+director_seleccionado = st.sidebar.selectbox(
+    "Selecciona un director", directores
+)
+buscar_director = st.sidebar.button("Filtrar por director")
 
 # -------- MOSTRAR TODO --------
 if mostrar_todo:
@@ -43,13 +50,18 @@ if mostrar_todo:
     st.dataframe(df, use_container_width=True)
 
 # -------- BÚSQUEDA POR TÍTULO --------
-if buscar and titulo_busqueda:
+if buscar_titulo and titulo_busqueda:
     resultado = df[
         df["title"].str.contains(titulo_busqueda, case=False, na=False)
     ]
-
-    st.subheader("Resultado de búsqueda")
+    st.subheader("Resultado de búsqueda por título")
     st.dataframe(resultado, use_container_width=True)
+
+# -------- FILTRO POR DIRECTOR --------
+if buscar_director:
+    filtrado = df[df["director"] == director_seleccionado]
+    st.subheader(f"Películas dirigidas por {director_seleccionado}")
+    st.dataframe(filtrado, use_container_width=True)
 
 # -------- MÉTRICA --------
 if "rating" in df.columns:
