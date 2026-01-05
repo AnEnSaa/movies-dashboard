@@ -9,7 +9,7 @@ st.title("Movies Dashboard")
 
 # Inicializar Firebase solo una vez
 if not firebase_admin._apps:
-    cred = credentials.Certificate(st.secrets["firebase"])
+    cred = credentials.Certificate(dict(st.secrets["firebase"]))
     firebase_admin.initialize_app(cred)
 
 db = firestore.client()
