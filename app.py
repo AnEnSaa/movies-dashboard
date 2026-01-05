@@ -13,7 +13,7 @@ if not firebase_admin._apps:
 
 db = firestore.client()
 
-# -------- FUNCIÓN REQUERIDA POR LA RÚBRICA --------
+# -------- FUNCIÓN --------
 def cargar_peliculas():
     docs = db.collection("movies").stream()
     data = []
@@ -23,20 +23,35 @@ def cargar_peliculas():
         data.append(movie)
     return pd.DataFrame(data)
 
-# -------- SIDEBAR --------
-st.sidebar.header("Opciones")
-mostrar_todo = st.sidebar.checkbox("Mostrar todos los filmes")
-
-# -------- LÓGICA PRINCIPAL --------
 df = cargar_peliculas()
 
 if df.empty:
     st.warning("No hay películas registradas.")
-else:
-    if mostrar_todo:
-        st.subheader("Tabla de películas")
-        st.dataframe(df, use_container_width=True)
+    st.stop()
 
-        if "rating" in df.columns:
-            st.subheader("Rating promedio")
-            st.metric("Promedio", round(df["rating"].mean(), 2))
+# -------- SIDEBAR --------
+st.sidebar.header("Opciones")
+
+mostrar_todo = st.sidebar.checkbox("Mostrar todos los filmes")
+
+titulo_busqueda = st.sidebar.text_input("Buscar por título")
+buscar = st.sidebar.button("Buscar")
+
+# -------- MOSTRAR TODO --------
+if mostrar_todo:
+    st.subheader("Tabla de películas")
+    st.dataframe(df, use_container_width=True)
+
+# -------- BÚSQUEDA POR TÍTULO --------
+if buscar and titulo_busqueda:
+    resultado = df[
+        df["title"].str.contains(titulo_busqueda, case=False, na=False)
+    ]
+
+    st.subheader("Resultado de búsqueda")
+    st.dataframe(resultado, use_container_width=True)
+
+# -------- MÉTRICA --------
+if "rating" in df.columns:
+    st.subheader("Rating promedio")
+    st.metric("Promedio", round(df["rating"].mean(), 2))
